@@ -1,6 +1,14 @@
-import { ChatMessage, StreamState, ToolCallState } from "@/types/store.types";
+import { ChatMessage, ContextSnapshot, StreamState, TimeLineEvent, ToolCallState } from "@/types/store.types";
 import { ConnectionStatus } from "@/types/types";
 import { create } from "zustand";
+
+const MAX_TIMELINE = 500
+
+let _mid = 0;
+function mid(): string { return `m${++_mid}`}
+
+let _ceid = 0;
+function ceid(): string { return `ce${++_ceid}`}
 
 interface AgentStore {
   // connection state
@@ -10,6 +18,12 @@ interface AgentStore {
   messages: ChatMessage[];
   streams: Record<string, StreamState>;
 
+  timelineEvents: TimeLineEvent[];
+  activeEventId: string | null;
+
+  contextSnapshots: Record<string, ContextSnapshot[]>;
+  activeContextId: string | null;
+
   // actions
   setConnectionStatus: (status: ConnectionStatus) => void;
   addUserMessage: (content: string) => void;
@@ -18,20 +32,21 @@ interface AgentStore {
   addToolCall: (streamId: string, toolCall: ToolCallState) => void;
   resolveToolCall: (callId: string, result: Record<string, unknown>) => void;
   endStream: (streamId: string) => void;
+
+  addContextSnapshot: (contextId: string, seq: number, data: Record<string, unknown>) => void;
+  addTimelineEvents: (event: TimeLineEvent) => void;
+  setActiveTime: (id: string | null) => void;
 }
-//TODO:
 
-let _mid = 0;
-function mid(): string { return `m${++_mid}`}
-
-
-
-export const useAgentStore = create<AgentStore>((set) => ({
+export const useAgentStore = create<AgentStore>((set, get) => ({
 
   connectionStatus: 'disconnected',
   messages: [],
   streams: {},
-
+  timelineEvents: [],
+  activeEventId: null,
+  contextSnapshots: {},
+  activeContextId: null,
 
   setConnectionStatus: (status) => {
     set(() => ({ connectionStatus: status }));
@@ -121,5 +136,45 @@ export const useAgentStore = create<AgentStore>((set) => ({
         [streamId]: { ...stream, status: 'ended', endedAt: Date.now() },
       }
     });
+  },
+
+  addContextSnapshot: (contextId, seq, data) => {
+    set((state) => {
+      const history = state.contextSnapshots[contextId] ?? [];
+      const snapshot: ContextSnapshot = {
+        contextId,
+        index: history.length,
+        seq,
+        data,
+        timestamp: Date.now(),
+      }
+      return {
+        contextSnapshot: {
+          ...state.contextSnapshots,
+          [contextId]: [...history, snapshot],
+        },
+        activeContextId: contextId,
+      }
+    });
+
+    get().addTimelineEvents({
+      kind: 'CONTEXT_SNAPSHOT',
+      id: ceid(),
+      seq,
+      contextId: contextId,
+      timestamp: Date.now(),
+    })
+  },
+
+  addTimelineEvents: (event) => {
+    set((state) => {
+      const next = [...state.timelineEvents, event];
+      return {
+        timelineEvents: next.length > MAX_TIMELINE ? next.slice(next.length - MAX_TIMELINE) : next,
+      }
+    });
+  },
+  setActiveTime(id) {
+    set({ activeEventId: id })
   },
 }));

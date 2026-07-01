@@ -32,6 +32,7 @@ export interface TokenBatchEvent {
   streamId: string;
   count: number; 
   text: string;
+  seq: number;
   durationMs: number; 
   timestamp: number;
 }
@@ -75,7 +76,6 @@ export interface PongEvent {
   kind: 'PONG';
   id: string;
   challenge: string
-  seq: number; 
   timestamp: number;
 }
 
