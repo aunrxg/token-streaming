@@ -1,5 +1,5 @@
 import { useAgentStore } from "@/store/agentStore";
-import { ToolCallState } from "@/types/store.types";
+import { TimeLineEvent, ToolCallState } from "@/types/store.types";
 import { ManagerEvent } from "@/types/types";
 import { getWebSocketManager } from "./ws/WebSockerManager";
 
@@ -23,7 +23,17 @@ function flushBatch(streamId: string) {
   batches.delete(streamId);
   batchTimer.delete(streamId);
 
-  // TODO:
+  const event: TimeLineEvent = {
+    kind: 'TOKEN_BATCH',
+    id: eid(),
+    count: batch.count,
+    text: batch.text,
+    durationMs: Date.now() - batch.startTime,
+    streamId,
+    timestamp: batch.startTime,
+    seq: batch.lastSeq,
+  }
+  useAgentStore.getState().addTimelineEvents(event);
 }
 
 function flushBatchSync(streamId: string) {
@@ -83,31 +93,73 @@ function handleEvent(event: ManagerEvent) {
       }
       store.addToolCall(event.streamId, toolCall);
 
-      //TODO:
+      store.addTimelineEvents({
+        kind: 'TOOL_CALL',
+        args: event.args,
+        callId: event.callId,
+        toolName: event.toolName,
+        seq: event.seq,
+        timestamp: event.timestamp,
+        id: eid(),
+      });
       break;
 
     case 'tool_result':
       store.resolveToolCall(event.callId, event.result);
-      //TODO:
+      store.addTimelineEvents({
+        kind: 'TOOL_RESULT',
+        callId: event.callId,
+        result: event.result,
+        seq: event.seq,
+        timestamp: event.timestamp,
+        id: eid(),
+      });
       break;
 
     case 'context_snapshot':
-      break; //TODO:
+      store.addContextSnapshot(event.contextId, event.seq, event.data);
+      break;
 
     case 'ping_received':
+      store.addTimelineEvents({
+        kind: 'PING',
+        id: eid(),
+        challenge: event.challenge,
+        seq: event.seq,
+        timestamp: event.timestamp,
+      });
       break;
 
     case 'pong_sent':
+      store.addTimelineEvents({
+        kind: 'PONG',
+        challenge: event.challenge,
+        id: eid(),
+        timestamp: event.timestamp,
+      });
       break;
 
     case 'stream_end':
       flushBatchSync(event.streamId);
       store.endStream(event.streamId);
-      //TODO:
-
+      store.addTimelineEvents({
+        kind: 'STREAM_END',
+        id: eid(),
+        seq: event.seq,
+        streamId: event.streamId,
+        timestamp: event.timestamp,
+      });
       break;
 
     case 'error':
+      store.addTimelineEvents({
+        kind: 'ERROR',
+        id: eid(),
+        code: event.code,
+        message: event.message,
+        seq: event.seq,
+        timestamp: event.timestamp,
+      });
       break;
   }
 }
