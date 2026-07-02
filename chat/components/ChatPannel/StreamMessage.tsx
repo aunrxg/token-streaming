@@ -17,7 +17,7 @@ export const StreamMessage = memo(function StreamMessage({ streamId }: Prop) {
     <div className="flex gap-3">
       {/* Avatar */}
       <div className="w-7 h-7 rounded-full bg-accent/20 border border-accent/30 flex items-center justify-center text-accent text-xs shrink-0 mt-0.5">
-        ◈&#9672;
+        ◈
       </div>
 
       <div className="flex-1 min-w-0">
