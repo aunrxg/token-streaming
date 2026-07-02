@@ -1,26 +1,110 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap");
+@config '../tailwind.config.ts';
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", "Fira Code", monospace;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* ── Base ───────────────────────────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+html,
+body,
+#__next {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: #0d1117;
+  color: #e6edf3;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Custom scrollbars ───────────────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #30363d;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #484f58;
+}
+
+/* ── Streaming cursor ────────────────────────────────────────────────────────── */
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+.streaming-cursor::after {
+  content: "▋";
+  display: inline-block;
+  margin-left: 1px;
+  animation: blink 1s step-end infinite;
+  color: #58a6ff;
+  font-size: 0.85em;
+}
+
+/* ── Syntax highlight colours (JSON tree) ────────────────────────────────────── */
+.json-string {
+  color: #a5d6ff;
+}
+.json-number {
+  color: #7ee787;
+}
+.json-boolean {
+  color: #ff7b72;
+}
+.json-null {
+  color: #8b949e;
+}
+.json-key {
+  color: #e6edf3;
+}
+
+/* ── Diff highlighting ───────────────────────────────────────────────────────── */
+.diff-added {
+  background: rgba(63, 185, 80, 0.15);
+  border-left: 2px solid #3fb950;
+  padding-left: 4px;
+}
+.diff-removed {
+  background: rgba(248, 81, 73, 0.15);
+  border-left: 2px solid #f85149;
+  padding-left: 4px;
+}
+.diff-changed {
+  background: rgba(210, 153, 34, 0.15);
+  border-left: 2px solid #d29922;
+  padding-left: 4px;
+}
+
+/* ── Resize handle ───────────────────────────────────────────────────────────── */
+.resize-handle {
+  width: 4px;
+  background: #21262d;
+  cursor: col-resize;
+  transition: background 150ms;
+}
+.resize-handle:hover {
+  background: #58a6ff;
 }
