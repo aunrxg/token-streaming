@@ -2,7 +2,31 @@ import { ClientMessage, ConnectionStatus, ManagerEvent, PingMessage, ServerMessa
 import { ReorderBuffer } from "./SeqReorder";
 
 const BACKOFF = [500, 1000, 2000, 4000, 8000, 10000] as const
-type  ManagerListener = (event: ManagerEvent) => void;
+type ManagerListener = (event: ManagerEvent) => void;
+
+type ServerMessageRecord = ServerMessage & Record<string, unknown>;
+
+function normalizeServerMessage(msg: Record<string, unknown>): ServerMessageRecord {
+  const normalized = { ...msg } as Record<string, unknown>;
+
+  if (typeof normalized.streamId === 'undefined' && typeof normalized.stream_id !== 'undefined') {
+    normalized.streamId = normalized.stream_id;
+  }
+
+  if (typeof normalized.contextId === 'undefined' && typeof normalized.context_id !== 'undefined') {
+    normalized.contextId = normalized.context_id;
+  }
+
+  if (typeof normalized.callId === 'undefined' && typeof normalized.call_id !== 'undefined') {
+    normalized.callId = normalized.call_id;
+  }
+
+  if (typeof normalized.toolName === 'undefined' && typeof normalized.tool_name !== 'undefined') {
+    normalized.toolName = normalized.tool_name;
+  }
+
+  return normalized as ServerMessageRecord;
+}
 
 class WebSocketManager {
   private ws: WebSocket | null = null;
@@ -113,18 +137,18 @@ class WebSocketManager {
   // msg incoming
 
   private onMessage(raw: string): void {
-    let msg: ServerMessage;
-    
+    let msg: ServerMessageRecord;
+
     try {
-      msg = JSON.parse(raw);
+      msg = normalizeServerMessage(JSON.parse(raw) as Record<string, unknown>);
     } catch {
       // wrong json
-      return // silent return
+      return; // silent return
     }
 
     // PING: close connection after 3 miss PONG response
     if (msg.type === "PING") {
-      this.handlePingNow(msg);
+      this.handlePingNow(msg as PingMessage);
     }
 
     this.processOrBuffer(msg);
