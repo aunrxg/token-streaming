@@ -1,4 +1,7 @@
 "use client";
+import { ChatPanel } from "@/components/ChatPannel/Index";
+import { Context } from "@/components/contextTree/Index";
+import { TraceTimeline } from "@/components/Timeline/Index";
 import { useState } from "react";
 
 type RightTab = 'timeline' | 'context'
@@ -26,7 +29,7 @@ export default function Home() {
 
         {/* Left — chat */}
         <div className="flex flex-col flex-1 min-w-0 border-r border-border">
-          {/* <ChatPanel /> */}
+          <ChatPanel />
         </div>
 
         {/* Right — tabbed sidebar */}
@@ -51,11 +54,11 @@ export default function Home() {
           </div>
 
           {/* Tab content */}
-          {/* <div className="flex-1 min-h-0 overflow-hidden">
+          <div className="flex-1 min-h-0 overflow-hidden">
             {rightTab === 'timeline'
               ? <TraceTimeline />
-              : <ContextInspector />}
-          </div> */}
+              : <Context />}
+          </div>
         </div>
       </div>
     </div>

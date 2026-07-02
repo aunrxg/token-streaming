@@ -35,7 +35,7 @@ interface AgentStore {
 
   addContextSnapshot: (contextId: string, seq: number, data: Record<string, unknown>) => void;
   addTimelineEvents: (event: TimeLineEvent) => void;
-  setActiveTime: (id: string | null) => void;
+  setActiveEventId: (id: string | null) => void;
 }
 
 export const useAgentStore = create<AgentStore>((set, get) => ({
@@ -174,7 +174,7 @@ export const useAgentStore = create<AgentStore>((set, get) => ({
       }
     });
   },
-  setActiveTime(id) {
+  setActiveEventId(id) {
     set({ activeEventId: id })
   },
 }));

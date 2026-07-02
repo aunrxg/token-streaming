@@ -10,7 +10,7 @@ interface Props {
 
 export function ToolCallCard({ toolCall }: Props) {
   const activeEventId = useAgentStore(s => s.activeEventId);
-  const setActiveEventId = useAgentStore(s => s.setActiveTime);
+  const setActiveEventId = useAgentStore(s => s.setActiveEventId);
 
   const isHighlighted = activeEventId === toolCall.callId;
 

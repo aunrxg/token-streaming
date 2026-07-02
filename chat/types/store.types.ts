@@ -107,6 +107,7 @@ export type TimeLineEvent =
   | ContextSnapshotEvent | PingEvent | PongEvent 
   | StreamEndEvent | ErrorEvent | ConnectionEvent
 
+export type TimelineEventKind = TimeLineEvent['kind'];
 // for context
 
 export interface ContextSnapshot {
