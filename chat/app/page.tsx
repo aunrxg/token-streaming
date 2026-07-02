@@ -2,6 +2,7 @@
 import { ChatPanel } from "@/components/ChatPannel/Index";
 import { ConnectionStatus } from "@/components/ConnectionStatus";
 import { Context } from "@/components/contextTree/Index";
+import { SeqCounter } from "@/components/SeqCounter";
 import { TraceTimeline } from "@/components/Timeline/Index";
 import { useWebSocket } from "@/hooks/useWebSocket";
 import { useState } from "react";
@@ -23,6 +24,7 @@ export default function Home() {
             ◈ agent console
           </span>
         </div>
+        <SeqCounter />
         <ConnectionStatus />
       </header>
 

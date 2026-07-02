@@ -24,6 +24,9 @@ interface AgentStore {
   contextSnapshots: Record<string, ContextSnapshot[]>;
   activeContextId: string | null;
 
+  lastProcessedSeq: number;
+  setLastProcessedSeq: (seq: number) => void;
+
   // actions
   setConnectionStatus: (status: ConnectionStatus) => void;
   addUserMessage: (content: string) => void;
@@ -47,6 +50,12 @@ export const useAgentStore = create<AgentStore>((set, get) => ({
   activeEventId: null,
   contextSnapshots: {},
   activeContextId: null,
+
+  lastProcessedSeq: 0,
+
+  setLastProcessedSeq: (seq) => {
+    set(() => ({ lastProcessedSeq: seq }));
+  },
 
   setConnectionStatus: (status) => {
     set(() => ({ connectionStatus: status }));

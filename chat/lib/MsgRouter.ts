@@ -59,6 +59,13 @@ function scheduleBatchFlush(streamId: string) {
 function handleEvent(event: ManagerEvent) {
   const store = useAgentStore.getState();
 
+  if ('seq' in event) {
+    const current = store.lastProcessedSeq;
+    if (event.seq > current) {
+      store.setLastProcessedSeq(event.seq);
+    }
+  }
+
   switch(event.type) {
     
     case 'connection_change': 
